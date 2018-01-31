@@ -73,6 +73,11 @@ function addStudent(){
     var fbRef = firebase.database();
 
     fbRef.ref('students').push(dataToSend)
+    clearAddStudentFormInputs();
+}
+
+function clearAddStudentFormInputs(){
+    $('input').val('')
 }
 
 function deleteStudent(student){
