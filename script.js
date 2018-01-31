@@ -34,7 +34,9 @@ function initializeApp(){
     $("#addAlert").hide(); // hide add student alert on doc load
 }
 
-
+/****************************************************************
+ * Renders all server data to DOM
+ */
 function renderStudentOnDom(data){
         $("tbody").empty();
         for (var student in data) {
@@ -55,31 +57,35 @@ function renderStudentOnDom(data){
         addClickHandlersToElements()
         // calculateGradeAverage();
 }
-
+/****************************************************************
+ * Add Student to server
+ */
 function addStudent(){
-    event.preventDefault()
+    // event.preventDefault()
     let name = $("#studentName").val();
     let course = $("#course").val()
     let grade = $("#studentGrade").val()
-    // if(name || course || grade || student_id == ''){
-    //     alert('Please complete the form')
-    // }
 
     let dataToSend = {
         student_name: name,
         course: course,
         grade: grade,
     }
-    var fbRef = firebase.database();
-
+    // var fbRef = firebase.database();
     fbRef.ref('students').push(dataToSend)
     clearAddStudentFormInputs();
 }
 
+/****************************************************************
+ * Clear input values
+ */
 function clearAddStudentFormInputs(){
     $('input').val('')
 }
 
+/****************************************************************
+ * Deletes student from server
+ */
 function deleteStudent(student){
     debugger;
     console.log(student)
@@ -95,19 +101,25 @@ function deleteStudent(student){
 
 }
 
-
+/****************************************************************
+ * Click Handler and initiation of addStudent function
+ */
 function handleAddClicked(){
     if(validateForm() == true){
         addStudent();
-    };
+    }
 
     //grab student data from inputs
 
 }
 
-
+/****************************************************************
+ * Click Handlers
+ */
 function addClickHandlersToElements(){
-    $("#addButton").click(handleAddClicked);
+    // $("#addButton").click(handleAddClicked);
+    $("#addButton").unbind().click(handleAddClicked);
+
     $(".btn-danger").click(function(){
         deleteStudent($(this).attr("id"))
     });
@@ -116,6 +128,9 @@ function addClickHandlersToElements(){
     // $("#dataButton").tooltip({title:'Click to load data from the server', placement: 'bottom'}); // tooltip/jquery
 }
 
+/****************************************************************
+ * validate input / form
+ */
 function validateForm(){
     var nameInput = $("#studentName").val();
     var course = $("#course").val();
@@ -129,3 +144,38 @@ function validateForm(){
         return true;
     }
 }
+
+
+/****************************************************************
+ * Open modal on incorrect input
+ */
+function openModal(){
+    $("#inputModal").modal('show');
+}
+/****************************************************************
+ * Show student added alert
+ */
+function showAlert(){
+    $("#addAlert").show();
+}
+/****************************************************************
+ * close student added alert
+ */
+function closeAlert(){
+    $("#addAlert").fadeTo(1000, 500).slideUp(1000, function(){
+        $("#addAlert").hide();
+    });
+}
+/****************************************************************
+ * Event listener for 'return' key -- adds student from input data on form
+ */
+$(window).keyup(function(event){
+    if(event.keyCode === 13){
+        if(validateForm() === true){
+            addStudent()
+        }
+    }
+});
+/****************************************************************
+ *
+ */
