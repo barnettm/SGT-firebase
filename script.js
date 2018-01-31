@@ -113,19 +113,33 @@ function handleAddClicked(){
 
 }
 
+/***************************************************************************************************
+ * handleCancelClicked - Event Handler when user clicks the cancel button, should clear out student form
+ * @param: {undefined} none
+ * @returns: {undefined} none
+ * @calls: clearAddStudentFormInputs
+ */
+function handleCancelClick(){
+    clearAddStudentFormInputs();
+    $(".input-group-addon").css('background-color', '#eee');
+    console.log("Cancel clicked")
+}
+
 /****************************************************************
  * Click Handlers
  */
 function addClickHandlersToElements(){
     // $("#addButton").click(handleAddClicked);
     $("#addButton").unbind().click(handleAddClicked);
+    $("#cancelButton").unbind().click(handleCancelClick);
+
 
     $(".btn-danger").click(function(){
         deleteStudent($(this).attr("id"))
     });
     // $("tbody").on('click','.btn',removeStudent);
     // $("#dataButton").click(handleServerClick);
-    // $("#dataButton").tooltip({title:'Click to load data from the server', placement: 'bottom'}); // tooltip/jquery
+    // $("#addButton").tooltip({title:'Add Student', placement: 'bottom'}); // tooltip/jquery
 }
 
 /****************************************************************
