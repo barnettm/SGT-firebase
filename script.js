@@ -55,7 +55,7 @@ function renderStudentOnDom(data){
             $("tbody").append(newTableRow)
         }
         addClickHandlersToElements()
-        // calculateGradeAverage();
+        calculateGradeAverage();
 }
 /****************************************************************
  * Add Student to server
@@ -74,6 +74,8 @@ function addStudent(){
     // var fbRef = firebase.database();
     fbRef.ref('students').push(dataToSend)
     clearAddStudentFormInputs();
+    showAlert(); // success alert
+    closeAlert(); // auto closes on setInterval
 }
 
 /****************************************************************
@@ -142,6 +144,53 @@ function addClickHandlersToElements(){
     // $("#addButton").tooltip({title:'Add Student', placement: 'bottom'}); // tooltip/jquery
 }
 
+
+/***************************************************************************************************
+ * calculateGradeAverage - loop through the global student array and calculate average grade and return that value
+ * @param: {array} students  the array of student objects
+ * @returns {number}
+ */
+function calculateGradeAverage(){
+    var temp = 0;
+    for(var student in data){
+        temp += parseInt(data[student].grade);
+    }
+    temp = temp / Object.keys(data).length;
+    temp = parseInt(temp);
+    renderGradeAverage(temp);
+
+}
+/***************************************************************************************************
+ * renderGradeAverage - updates the on-page grade average
+ * @param: {number} average    the grade average
+ * @returns {undefined} none
+ */
+function renderGradeAverage(gradeAverage){
+    if(Object.keys(data).length == 0){
+        gradeAverage = 0;
+    }
+        $(".avgGrade").text(gradeAverage);
+
+}
+ /* reset - resets the application to initial state. Global variables reset, DOM get reset to initial load state
+ */
+
+
+/**
+ * Listen for the document to load and reset the data to the initial state
+ */
+
+function removeStudent(){
+   var parentIndex = $(this).parents('tr').index();
+   var idOfStudentInArray = student_array[parentIndex].id;
+   student_array.splice(parentIndex,1);
+   $(this).parents("tr").remove();
+   calculateGradeAverage();
+   deleteStudentFromServer(idOfStudentInArray);
+
+}
+
+
 /****************************************************************
  * validate input / form
  */
@@ -149,6 +198,7 @@ function validateForm(){
     var nameInput = $("#studentName").val();
     var course = $("#course").val();
     var grade = $("#studentGrade").val();
+    grade = parseInt(grade);
     if(isNaN(grade)||nameInput == ''){
         openModal();
         $(".input-group-addon").css('background-color', '#ce9894');
