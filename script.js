@@ -34,7 +34,9 @@ function initializeApp(){
     $("#addAlert").hide(); // hide add student alert on doc load
 }
 
-
+/****************************************************************
+ * Renders all server data to DOM
+ */
 function renderStudentOnDom(data){
         $("tbody").empty();
         for (var student in data) {
@@ -53,28 +55,39 @@ function renderStudentOnDom(data){
             $("tbody").append(newTableRow)
         }
         addClickHandlersToElements()
-        // calculateGradeAverage();
+        calculateGradeAverage();
 }
-
+/****************************************************************
+ * Add Student to server
+ */
 function addStudent(){
-    event.preventDefault()
+    // event.preventDefault()
     let name = $("#studentName").val();
     let course = $("#course").val()
     let grade = $("#studentGrade").val()
-    // if(name || course || grade || student_id == ''){
-    //     alert('Please complete the form')
-    // }
 
     let dataToSend = {
         student_name: name,
         course: course,
         grade: grade,
     }
-    var fbRef = firebase.database();
-
+    // var fbRef = firebase.database();
     fbRef.ref('students').push(dataToSend)
+    clearAddStudentFormInputs();
+    showAlert(); // success alert
+    closeAlert(); // auto closes on setInterval
 }
 
+/****************************************************************
+ * Clear input values
+ */
+function clearAddStudentFormInputs(){
+    $('input').val('')
+}
+
+/****************************************************************
+ * Deletes student from server
+ */
 function deleteStudent(student){
     debugger;
     console.log(student)
@@ -90,31 +103,102 @@ function deleteStudent(student){
 
 }
 
-
+/****************************************************************
+ * Click Handler and initiation of addStudent function
+ */
 function handleAddClicked(){
     if(validateForm() == true){
         addStudent();
-    };
+    }
 
     //grab student data from inputs
 
 }
 
+/***************************************************************************************************
+ * handleCancelClicked - Event Handler when user clicks the cancel button, should clear out student form
+ * @param: {undefined} none
+ * @returns: {undefined} none
+ * @calls: clearAddStudentFormInputs
+ */
+function handleCancelClick(){
+    clearAddStudentFormInputs();
+    $(".input-group-addon").css('background-color', '#eee');
+    console.log("Cancel clicked")
+}
 
+/****************************************************************
+ * Click Handlers
+ */
 function addClickHandlersToElements(){
-    $("#addButton").click(handleAddClicked);
+    // $("#addButton").click(handleAddClicked);
+    $("#addButton").unbind().click(handleAddClicked);
+    $("#cancelButton").unbind().click(handleCancelClick);
+
+
     $(".btn-danger").click(function(){
         deleteStudent($(this).attr("id"))
     });
     // $("tbody").on('click','.btn',removeStudent);
     // $("#dataButton").click(handleServerClick);
-    // $("#dataButton").tooltip({title:'Click to load data from the server', placement: 'bottom'}); // tooltip/jquery
+    // $("#addButton").tooltip({title:'Add Student', placement: 'bottom'}); // tooltip/jquery
 }
 
+
+/***************************************************************************************************
+ * calculateGradeAverage - loop through the global student array and calculate average grade and return that value
+ * @param: {array} students  the array of student objects
+ * @returns {number}
+ */
+function calculateGradeAverage(){
+    var temp = 0;
+    for(var student in data){
+        temp += parseInt(data[student].grade);
+    }
+    temp = temp / Object.keys(data).length;
+    temp = parseInt(temp);
+    renderGradeAverage(temp);
+
+}
+/***************************************************************************************************
+ * renderGradeAverage - updates the on-page grade average
+ * @param: {number} average    the grade average
+ * @returns {undefined} none
+ */
+function renderGradeAverage(gradeAverage){
+    if(Object.keys(data).length == 0){
+        gradeAverage = 0;
+    }
+        $(".avgGrade").text(gradeAverage);
+
+}
+ /* reset - resets the application to initial state. Global variables reset, DOM get reset to initial load state
+ */
+
+
+/**
+ * Listen for the document to load and reset the data to the initial state
+ */
+
+function removeStudent(){
+   var parentIndex = $(this).parents('tr').index();
+   var idOfStudentInArray = student_array[parentIndex].id;
+   student_array.splice(parentIndex,1);
+   $(this).parents("tr").remove();
+   calculateGradeAverage();
+   deleteStudentFromServer(idOfStudentInArray);
+
+}
+
+
+/****************************************************************
+ * validate input / form
+ */
 function validateForm(){
     var nameInput = $("#studentName").val();
     var course = $("#course").val();
     var grade = $("#studentGrade").val();
+    grade = parseInt(grade);
     if(isNaN(grade)||nameInput == ''){
         openModal();
         $(".input-group-addon").css('background-color', '#ce9894');
@@ -124,3 +208,38 @@ function validateForm(){
         return true;
     }
 }
+
+
+/****************************************************************
+ * Open modal on incorrect input
+ */
+function openModal(){
+    $("#inputModal").modal('show');
+}
+/****************************************************************
+ * Show student added alert
+ */
+function showAlert(){
+    $("#addAlert").show();
+}
+/****************************************************************
+ * close student added alert
+ */
+function closeAlert(){
+    $("#addAlert").fadeTo(1000, 500).slideUp(1000, function(){
+        $("#addAlert").hide();
+    });
+}
+/****************************************************************
+ * Event listener for 'return' key -- adds student from input data on form
+ */
+$(window).keyup(function(event){
+    if(event.keyCode === 13){
+        if(validateForm() === true){
+            addStudent()
+        }
+    }
+});
+/****************************************************************
+ *
+ */
